@@ -1,0 +1,211 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v4.json",
+
+  "data": {
+    "url": "https://raw.githubusercontent.com/colmr/vis_class/master/Ireland_custom_topjson.json",
+    "format": {
+      "type": "topojson",
+      "feature": "IRL_adm1"
+    }
+  },
+
+  "title": {
+    "text": "Irish Primary School Explorer",
+    "fontSize": 28
+  },
+
+  "transform": [
+    {
+      "lookup": "id",
+      "from": {
+        "data": {
+          "url": "https://raw.githubusercontent.com/colmr/vis_class/master/IrishCountyPopulations.csv"
+        },
+        "key": "County",
+        "fields": [
+          "Population"
+        ]
+      }
+    }
+  ],
+
+  "concat": [
+    {
+  "data": {
+    "url": "https://raw.githubusercontent.com/colmr/vis_class/master/primary_schools.csv",
+    "format": {
+      "type": "csv"
+    }
+  },
+
+  "transform": [
+      {"filter": {"selection": "hist"}},
+      {"filter": {"selection": "map"}}
+    ],
+
+  "selection": {
+    "bar": {"type":"multi", "fields": ["County"]}
+  },
+
+  "mark": "bar",
+  "encoding": {
+    "x":{
+      "field": "County",
+      "type": "quantitative",
+      "aggregate": "count",
+      "axis": {
+        "title": "Number of Schools"
+      }
+    },
+
+    "y":{
+      "field": "County",
+      "type": "nominal",
+      "axis": {
+        "title": ""
+      },
+      "sort": "-x"
+      
+    },
+"color":{
+        "field": "Sex","type": "nominal",
+        "scale": {"domain":["Boys","Mixed","Girls"], "range":["#4269f5","#28e053","#d142f5"]}
+        },
+
+    "fillOpacity": {
+      "condition": {"selection": "bar", "value": 1},
+      "value": 0.3
+    }
+  },
+
+  "width": 100,
+  "height":628
+
+    },
+
+   { 
+   "vconcat":[
+    {
+  "height": 500,
+  "width": 300,
+
+  "projection": {
+    "type": "conicConformal"
+  },
+
+  "layer": [
+    {
+      "mark": {
+        "type": "geoshape",
+        "stroke": "white",
+        "fill": "#ddd"
+      }
+    },
+
+    {
+      "data": {
+        "url": "https://raw.githubusercontent.com/colmr/vis_class/master/primary_schools.csv",
+        "format": {
+          "type": "csv"
+        }
+      },
+
+      "transform": [
+      {"filter": {"selection": "hist"}},
+      {"filter": {"selection": "bar"}},
+      {"filter": {"selection": "map"}}
+    ],
+
+      "mark": "circle",
+      "selection": {
+        "map": {
+        "type": "single", "fields": ["Sex"], "bind":    "legend"
+    }
+      },
+
+      "encoding": {
+        "longitude": {
+          "field": "Long",
+          "type": "quantitative"
+        },
+        "latitude": {
+          "field": "Lat",
+          "type": "quantitative"
+        },
+        "color":{
+        "field": "Sex","type": "nominal",
+        "scale": {"domain":["Boys","Mixed","Girls"], "range":["#4269f5","#28e053","#d142f5"]}
+      },
+        "size": {
+          "field": "Total",
+          "type": "quantitative",
+          "scale":{
+            "range": [0,100]
+          }
+        },
+
+        "opacity":{
+          "condition": {"selection": "map", "value": 1},
+          "value": 0
+        }
+      }
+    }
+  ]
+
+  },
+      {
+"data": {
+    "url": "https://raw.githubusercontent.com/colmr/vis_class/master/primary_schools.csv",
+    "format": {
+      "type": "csv"
+    }
+  },
+
+  "encoding": {
+    "x":{
+      "field": "Total",
+      "type": "quantitative",
+      "axis": {
+        "title": "Number of Students"
+      },
+      "bin":{
+        "binned": false,
+        "step": 20
+      }
+    },
+    "y":{
+      "field": "Total",
+      "type": "quantitative",
+      "aggregate":"count",
+      "axis": {
+        "title": "Schools"
+      }
+    }
+},
+
+"width": 300,
+"height": 100,
+  "layer": [
+    {
+    "selection": {
+      "hist": {
+        "type": "interval",
+        "encodings": ["x"]
+      }
+    },
+    "mark": "bar"
+  }, {
+    "transform": [
+      {"filter": {"selection": "hist"}},
+      {"filter": {"selection": "bar"}},
+      {"filter": {"selection": "map"}}
+    ],
+    "mark": {"type": "bar", "color": "orange"}
+  }
+  ]
+}
+   ] 
+   }
+  ],
+  "description": "The only issue I encountered for this visualisation was with the histogram. At first I just used a selection to brush the graph however when I went to bin the data, the selection changed the colour of all the bars. To get around this I used a coloured layer over the original graph which is altered when the other graphs are."
+}
